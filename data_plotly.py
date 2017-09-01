@@ -30,6 +30,10 @@ from .resources import *
 from .data_plotly_dialog import DataPlotlyDialog
 import os.path
 
+# import processing provider
+from qgis.core import QgsApplication
+from .dataplotly_processing.dataplotly_provider import DataPlotlyProvider
+
 
 class DataPlotly:
     """QGIS Plugin Implementation."""
@@ -69,6 +73,10 @@ class DataPlotly:
         # TODO: We are going to let the user set this up in a future iteration
         self.toolbar = self.iface.addToolBar(u'DataPlotly')
         self.toolbar.setObjectName(u'DataPlotly')
+
+        # Add to processing
+        self.provider = DataPlotlyProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -179,6 +187,7 @@ class DataPlotly:
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
+        QgsApplication.processingRegistry().removeProvider(self.provider)
 
 
     def run(self):
