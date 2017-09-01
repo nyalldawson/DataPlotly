@@ -107,4 +107,18 @@ class DataPlotlyScatterPlot(QgisAlgorithm):
 
         values = vector.values(source, xfieldname, yfieldname)
 
+        print('vaffanculo')
         return {self.OUTPUT: output}
+
+        dq = {}
+        dq['plot_prop'] = {}
+        dq['layout_prop'] = {}
+        # plot type
+        dq['plot_type'] = 'scatter'
+        # vector layer
+        dq["layer"] = source
+        # minimum X and Y axis values
+        dq['plot_prop']['x'] = [xfieldname]
+        dq['plot_prop']['y'] = [yfieldname]
+
+        DataPlotlyDialog.showPlot(dq)
