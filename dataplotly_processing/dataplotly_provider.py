@@ -20,7 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-
+from PyQt5.QtGui import QIcon
 from qgis.core import QgsProcessingProvider, QgsApplication
 from processing.core.ProcessingConfig import Setting, ProcessingConfig
 
@@ -86,7 +86,7 @@ class DataPlotlyProvider(QgsProcessingProvider):
     def icon(self):
         """We return the default icon.
         """
-        return QgsProcessingProvider.icon(self)
+        return QIcon(":/plugins/DataPlotly/icon.png")
 
     def loadAlgorithms(self):
         """Here we fill the list of algorithms in self.algs.
