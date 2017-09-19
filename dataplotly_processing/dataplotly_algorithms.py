@@ -24,13 +24,16 @@
 from processing.algs.qgis.QgisAlgorithm import QgisAlgorithm
 from DataPlotly.data_plotly_dialog import DataPlotlyDialog
 
+from qgis.utils import plugins
 
 from qgis.core import (QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterField,
                        QgsProcessingUtils,
                        QgsProcessingParameterFileDestination,
                        QgsSettings,
-                       QgsProcessingOutputHtml)
+                       QgsProcessingOutputHtml,
+                       QgsProcessingOutputVectorLayer,
+                       QgsFeatureRequest)
 
 from processing.tools import vector
 
@@ -70,16 +73,17 @@ class DataPlotlyScatterPlot(QgisAlgorithm):
         self.addParameter(QgsProcessingParameterField(self.XFIELD,
                                                       self.tr('X attribute'),
                                                       parentLayerParameterName=self.INPUT,
-                                                      type=QgsProcessingParameterField.Numeric))
+                                                      type=QgsProcessingParameterField.Any))
 
         self.addParameter(QgsProcessingParameterField(self.YFIELD,
                                                       self.tr('Y attribute'),
                                                       parentLayerParameterName=self.INPUT,
-                                                      type=QgsProcessingParameterField.Numeric))
-        self.addParameter(QgsProcessingParameterFileDestination(self.OUTPUT,
-                                                                self.tr('Scatterplot'),
-                                                                self.tr('HTML files (*.html)')))
-        self.addOutput(QgsProcessingOutputHtml(self.OUTPUT, self.tr('Scatterplot')))
+                                                      type=QgsProcessingParameterField.Any))
+        # self.addParameter(QgsProcessingParameterFileDestination(self.OUTPUT,
+                                                                # self.tr('Scatterplot'),
+                                                                # self.tr('HTML files (*.html)')))
+        # self.addOutput(QgsProcessingOutputHtml(self.OUTPUT, self.tr('Scatterplot')))
+        self.addOutput(QgsProcessingOutputVectorLayer(self.OUTPUT, self.tr('Selected (attribute)')))
 
 
     def name(self):
@@ -91,7 +95,7 @@ class DataPlotlyScatterPlot(QgisAlgorithm):
         return self.tr('Scatter Plot')
 
     def group(self):
-        return self.tr('DataPlotly')
+        return self.tr('Plots')
 
     def processAlgorithm(self, parameters, context, feedback):
         """Here is where the processing itself takes place.
@@ -99,12 +103,38 @@ class DataPlotlyScatterPlot(QgisAlgorithm):
         :param context:
         """
 
-        source = self.parameterAsSource(parameters, self.INPUT, context)
+        layer = self.parameterAsSource(parameters, self.INPUT, context)
         xfieldname = self.parameterAsString(parameters, self.XFIELD, context)
         yfieldname = self.parameterAsString(parameters, self.YFIELD, context)
 
-        output = self.parameterAsFileOutput(parameters, self.OUTPUT, context)
+        fields = layer.fields()
 
-        values = vector.values(source, xfieldname, yfieldname)
+        # get field index for x
+        idxX = layer.fields().lookupField(xfieldname)
+        # get list of values for x
+        x_var = [i[xfieldname] for i in layer.getFeatures(QgsFeatureRequest().setFlags(QgsFeatureRequest.NoGeometry).setSubsetOfAttributes([idxX]))]
+        fieldTypeX = fields[idxX].type()
 
-        return {self.OUTPUT: output}
+        # get field index for y
+        idxY = layer.fields().lookupField(yfieldname)
+        # get list of values for y
+        y_var = [i[yfieldname] for i in layer.getFeatures(QgsFeatureRequest().setFlags(QgsFeatureRequest.NoGeometry).setSubsetOfAttributes([idxY]))]
+
+        pdic = {}
+        pdic['plot_prop'] = {}
+        pdic['layout_prop'] = {}
+
+        pdic['plot_type'] = 'scatter'
+        pdic['layer'] = layer
+        pdic['plot_prop']['x'] = x_var
+        pdic['plot_prop']['y'] = y_var
+
+        myplugin = plugins['DataPlotly']
+        myplugin.loadPlot(pdic)
+
+        # p = DataPlotlyDialog()
+        # p.showPlot(pdic)
+        # p.show()
+        # p.exec_()
+
+        return {self.OUTPUT: None}
