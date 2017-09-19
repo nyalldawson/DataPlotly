@@ -83,7 +83,7 @@ class DataPlotlyScatterPlot(QgisAlgorithm):
                                                                 # self.tr('Scatterplot'),
                                                                 # self.tr('HTML files (*.html)')))
         # self.addOutput(QgsProcessingOutputHtml(self.OUTPUT, self.tr('Scatterplot')))
-        self.addOutput(QgsProcessingOutputVectorLayer(self.OUTPUT, self.tr('Selected (attribute)')))
+        self.addOutput(QgsProcessingOutputVectorLayer(self.OUTPUT, self.tr('Plot')))
 
 
     def name(self):
