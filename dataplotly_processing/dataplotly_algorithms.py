@@ -130,7 +130,7 @@ class DataPlotlyScatterPlot(QgisAlgorithm):
         pdic['plot_prop']['y'] = y_var
 
         myplugin = plugins['DataPlotly']
-        myplugin.loadPlot(pdic)
+        myplugin.loadPlotNoBlock(pdic)
 
         # p = DataPlotlyDialog()
         # p.showPlot(pdic)

@@ -20,7 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from PyQt5.QtCore import Qt, QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
 
@@ -209,3 +209,12 @@ class DataPlotly:
 
         self.dlg.showPlot(plot_dic)
         self.run()
+
+    def loadPlotNoBlock(self, plot_dic):
+        '''
+        call the method to load the DataPlotly dialog with a given dictionary
+        '''
+        dlg = DataPlotlyDialog(self.iface.mainWindow())
+        dlg.setAttribute(Qt.WA_DeleteOnClose)
+        dlg.show()
+        dlg.showPlot(plot_dic)
